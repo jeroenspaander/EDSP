@@ -4,11 +4,11 @@
   "parameters": {
     "newVMName": {
       "type": "string",
-      "defaultValue": $ComputerName
+      "defaultValue": "$ComputerName"
     },
     "labName": {
       "type": "string",
-      "defaultValue": $LabName
+      "defaultValue": "$LabName"
     },
     "size": {
       "type": "string",
@@ -16,26 +16,26 @@
     },
     "userName": {
       "type": "string",
-      "defaultValue": $LogonName
+      "defaultValue": "$LogonName"
     },
     "password": {
       "type": "securestring"
     },
     "Join_Active_Directory_(AD)_domain_domainAdminUsername": {
       "type": "string",
-      "defaultValue": $ADJoinAccount
+      "defaultValue": "$ADJoinAccount"
 	  
     "Join_Active_Directory_(AD)_domain_domainToJoin": {
       "type": "string",
-      "defaultValue": $DomainToJoin
+      "defaultValue": "$DomainToJoin"
     },
     "Join_Active_Directory_(AD)_domain_ouPath": {
       "type": "string",
-      "defaultValue": $DomainOU
+      "defaultValue": "$DomainOU"
     },
     "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_registrationUrl": {
       "type": "string",
-      "defaultValue": $AutomationAccountURL
+      "defaultValue": "$AutomationAccountURL"
     },
     "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_registrationKey": {
       "type": "securestring"
@@ -70,7 +70,7 @@
     },
     "Add_user_to_Administrators_Group_domainJoinUsername": {
       "type": "string",
-      "defaultValue": $ADAccountLocalAdministrator
+      "defaultValue": "$ADAccountLocalAdministrator"
     }
   },
   "variables": {
