@@ -24,7 +24,10 @@
     "Join_Active_Directory_(AD)_domain_domainAdminUsername": {
       "type": "string",
       "defaultValue": ""
-	  
+    },
+    "Join_Active_Directory_(AD)_domain_domainAdminPassword": {
+      "type": "securestring"
+    },
     "Join_Active_Directory_(AD)_domain_domainToJoin": {
       "type": "string",
       "defaultValue": ""
