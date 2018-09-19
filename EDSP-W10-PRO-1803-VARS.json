@@ -1,0 +1,205 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "newVMName": {
+      "type": "string",
+      "defaultValue": $ComputerName
+    },
+    "labName": {
+      "type": "string",
+      "defaultValue": $LabName
+    },
+    "size": {
+      "type": "string",
+      "defaultValue": "Standard_B1s"
+    },
+    "userName": {
+      "type": "string",
+      "defaultValue": $LogonName
+    },
+    "password": {
+      "type": "securestring"
+    },
+    "Join_Active_Directory_(AD)_domain_domainAdminUsername": {
+      "type": "string",
+      "defaultValue": $ADJoinAccount
+	  
+    "Join_Active_Directory_(AD)_domain_domainToJoin": {
+      "type": "string",
+      "defaultValue": $DomainToJoin
+    },
+    "Join_Active_Directory_(AD)_domain_ouPath": {
+      "type": "string",
+      "defaultValue": $DomainOU
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_registrationUrl": {
+      "type": "string",
+      "defaultValue": $AutomationAccountURL
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_registrationKey": {
+      "type": "securestring"
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_configurationName": {
+      "type": "string",
+      "defaultValue": "IIS.localhost"
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_configurationMode": {
+      "type": "string",
+      "defaultValue": "ApplyAndAutocorrect"
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_configurationFrequency": {
+      "type": "int",
+      "defaultValue": 15
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_refreshFrequency": {
+      "type": "int",
+      "defaultValue": 30
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_rebootIfNeeded": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_actionAfterReboot": {
+      "type": "string",
+      "defaultValue": "ContinueConfiguration"
+    },
+    "PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_allowModuleOverwrite": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "Add_user_to_Administrators_Group_domainJoinUsername": {
+      "type": "string",
+      "defaultValue": $ADAccountLocalAdministrator
+    }
+  },
+  "variables": {
+    "labSubnetName": "[concat(variables('labVirtualNetworkName'), 'Subnet')]",
+    "labVirtualNetworkId": "[resourceId('Microsoft.DevTestLab/labs/virtualnetworks', parameters('labName'), variables('labVirtualNetworkName'))]",
+    "labVirtualNetworkName": "[concat('Dtl', parameters('labName'))]",
+    "vmId": "[resourceId ('Microsoft.DevTestLab/labs/virtualmachines', parameters('labName'), parameters('newVMName'))]",
+    "vmName": "[concat(parameters('labName'), '/', parameters('newVMName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-04-26-preview",
+      "type": "Microsoft.DevTestLab/labs/virtualmachines",
+      "name": "[variables('vmName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "labVirtualNetworkId": "[variables('labVirtualNetworkId')]",
+        "notes": "Windows 10 Pro, Version 1803",
+        "galleryImageReference": {
+          "offer": "Windows-10",
+          "publisher": "MicrosoftWindowsDesktop",
+          "sku": "rs4-pro",
+          "osType": "Windows",
+          "version": "latest"
+        },
+        "size": "[parameters('size')]",
+        "userName": "[parameters('userName')]",
+        "password": "[parameters('password')]",
+        "isAuthenticationWithSshKey": false,
+        "artifacts": [
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-azurepowershell')]"
+          },
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-chrome')]"
+          },
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-domain-join-new')]",
+            "parameters": [
+              {
+                "name": "domainAdminUsername",
+                "value": "[parameters('Join_Active_Directory_(AD)_domain_domainAdminUsername')]"
+              },
+              {
+                "name": "domainAdminPassword",
+                "value": "[parameters('Join_Active_Directory_(AD)_domain_domainAdminPassword')]"
+              },
+              {
+                "name": "domainToJoin",
+                "value": "[parameters('Join_Active_Directory_(AD)_domain_domainToJoin')]"
+              },
+              {
+                "name": "ouPath",
+                "value": "[parameters('Join_Active_Directory_(AD)_domain_ouPath')]"
+              }
+            ]
+          },
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-desired-state-configuration-az-automation')]",
+            "parameters": [
+              {
+                "name": "registrationUrl",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_registrationUrl')]"
+              },
+              {
+                "name": "registrationKey",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_registrationKey')]"
+              },
+              {
+                "name": "configurationName",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_configurationName')]"
+              },
+              {
+                "name": "configurationMode",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_configurationMode')]"
+              },
+              {
+                "name": "configurationFrequency",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_configurationFrequency')]"
+              },
+              {
+                "name": "refreshFrequency",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_refreshFrequency')]"
+              },
+              {
+                "name": "rebootIfNeeded",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_rebootIfNeeded')]"
+              },
+              {
+                "name": "actionAfterReboot",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_actionAfterReboot')]"
+              },
+              {
+                "name": "allowModuleOverwrite",
+                "value": "[parameters('PowerShell_Desired_State_Configuration_Registrar_-_Azure_Automation_allowModuleOverwrite')]"
+              }
+            ]
+          },
+          {
+            "artifactId": "[resourceId('Microsoft.DevTestLab/labs/artifactSources/artifacts', parameters('labName'), 'public repo', 'windows-add-local-admin')]",
+            "parameters": [
+              {
+                "name": "domainJoinUsername",
+                "value": "[parameters('Add_user_to_Administrators_Group_domainJoinUsername')]"
+              }
+            ]
+          }
+        ],
+        "labSubnetName": "[variables('labSubnetName')]",
+        "disallowPublicIpAddress": true,
+        "storageType": "Standard",
+        "allowClaim": true,
+        "networkInterface": {
+          "sharedPublicIpAddressConfiguration": {
+            "inboundNatRules": [
+              {
+                "transportProtocol": "tcp",
+                "backendPort": 3389
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "labVMId": {
+      "type": "string",
+      "value": "[variables('vmId')]"
+    }
+  }
+}
